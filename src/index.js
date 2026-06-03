@@ -59,15 +59,15 @@ export default {
       }
 
       if (route.action === "capture" && request.method === "POST") {
-        return handleCapture(request, env);
+        return await handleCapture(request, env);
       }
 
       if (route.action === "handoff" && request.method === "POST") {
-        return handleHandoff(request, env);
+        return await handleHandoff(request, env);
       }
 
       if (route.action === "github-issue" && request.method === "POST") {
-        return handleGithubIssue(request, env);
+        return await handleGithubIssue(request, env);
       }
 
       return json({ ok: false, error: "method_or_route_not_allowed" }, 405);
@@ -212,11 +212,22 @@ async function putGithubFile(token, repo, path, content) {
     headers: githubHeaders(token),
     body: JSON.stringify({
       message: `Save ChatGPT output ${path}`,
-      content: btoa(unescape(encodeURIComponent(content))),
+      content: base64EncodeUtf8(content),
       sha
     })
   });
   if (!response.ok) throw new Error(`GitHub save failed: ${response.status} ${await response.text()}`);
+}
+
+function base64EncodeUtf8(value) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
 }
 
 async function createGithubIssue(token, repo, body) {
@@ -232,6 +243,7 @@ async function createGithubIssue(token, repo, body) {
 function githubHeaders(token) {
   return {
     "Authorization": `Bearer ${token}`,
+    "User-Agent": "gh-automation-worker",
     "Accept": "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
     "Content-Type": "application/json"
