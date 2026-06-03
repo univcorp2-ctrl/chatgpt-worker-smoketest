@@ -1,0 +1,1 @@
+Cloudflare Worker GitHub issue draft final smoke test.
