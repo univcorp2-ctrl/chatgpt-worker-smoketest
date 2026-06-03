@@ -1,0 +1,14 @@
+name = "gh-automation"
+main = "src/index.js"
+compatibility_date = "2026-06-03"
+workers_dev = true
+
+# Optional persistent storage. Create a KV namespace, then replace the IDs below.
+# [[kv_namespaces]]
+# binding = "CAPTURE_KV"
+# id = "YOUR_KV_NAMESPACE_ID"
+# preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
+
+[vars]
+# GITHUB_REPO = "univcorp2-ctrl/chatgpt-worker-smoketest"
+# URL_SECRET, GITHUB_TOKEN should be configured with wrangler secret put.
