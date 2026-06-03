@@ -1,0 +1,13 @@
+{
+  "id": "2026-06-03_github-dev_issue_final-issue-draft-test_7f433902",
+  "created_at": "2026-06-03T09:38:46.934Z",
+  "issue_url": null,
+  "title": "final issue draft test",
+  "area": "github_dev",
+  "body": "Cloudflare Worker GitHub issue draft final smoke test.",
+  "create_issue": false,
+  "labels": [
+    "smoketest"
+  ],
+  "priority": "A"
+}
