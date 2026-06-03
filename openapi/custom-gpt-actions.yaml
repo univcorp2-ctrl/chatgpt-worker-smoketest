@@ -1,0 +1,234 @@
+openapi: 3.1.0
+info:
+  title: ChatGPT Output Capture API
+  description: Save ChatGPT outputs, Deep Research results, task summaries, GitHub issues, and AI agent handoff prompts through Cloudflare Worker.
+  version: 1.0.0
+servers:
+  - url: https://gh-automation.univcorp2.workers.dev/t/YOUR_URL_SECRET
+    description: Cloudflare Worker endpoint with URL secret
+paths:
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Check whether the Cloudflare Worker is running.
+      description: Returns basic health status of the capture API.
+      responses:
+        "200":
+          description: Worker is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  service:
+                    type: string
+                  timestamp:
+                    type: string
+  /capture:
+    post:
+      operationId: captureOutput
+      summary: Save a ChatGPT output or Deep Research result.
+      description: Captures research, task, development, real estate, finance, and personal reflection outputs as structured markdown and JSON.
+      x-openai-isConsequential: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - date
+                - type
+                - priority
+                - area
+                - summary
+                - markdown
+              properties:
+                title:
+                  type: string
+                date:
+                  type: string
+                  description: Date in YYYY-MM-DD format.
+                type:
+                  type: string
+                  enum: [research, deep_research_result, decision, task, idea, property_analysis, finance, dev, personal_reflection, meeting_note]
+                status:
+                  type: string
+                  enum: [new, in_progress, waiting, done, archived]
+                  default: new
+                priority:
+                  type: string
+                  enum: [A, B, C]
+                area:
+                  type: string
+                  enum: [real_estate, finance, ai_automation, github_dev, business, personal, investment, sales, research]
+                summary:
+                  type: string
+                background:
+                  type: string
+                markdown:
+                  type: string
+                source_urls:
+                  type: array
+                  items:
+                    type: string
+                next_actions:
+                  type: array
+                  items:
+                    type: string
+                agent_handoff_prompt:
+                  type: string
+                github_issue_body:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                revenue_impact:
+                  type: string
+                  enum: [high, medium, low, unknown]
+                deadline:
+                  type: [string, "null"]
+                save_targets:
+                  type: object
+                  properties:
+                    google_drive:
+                      type: boolean
+                      default: true
+                    obsidian:
+                      type: boolean
+                      default: true
+                    github:
+                      type: boolean
+                      default: true
+                    notion:
+                      type: boolean
+                      default: false
+                    database:
+                      type: boolean
+                      default: true
+      responses:
+        "200":
+          description: Capture saved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  id:
+                    type: string
+                  saved_locations:
+                    type: object
+                  message:
+                    type: string
+        "400":
+          description: Invalid request.
+        "500":
+          description: Server error.
+  /handoff:
+    post:
+      operationId: createAgentHandoff
+      summary: Save an AI agent handoff prompt.
+      description: Saves a structured handoff prompt for Codex, Claude Code, Gemini CLI, or a human operator.
+      x-openai-isConsequential: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [project_name, goal, context, agent_prompt]
+              properties:
+                project_name:
+                  type: string
+                goal:
+                  type: string
+                context:
+                  type: string
+                current_state:
+                  type: string
+                required_output:
+                  type: string
+                repo_suggestion:
+                  type: string
+                files_to_read:
+                  type: array
+                  items:
+                    type: string
+                files_to_create_or_modify:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      path:
+                        type: string
+                      purpose:
+                        type: string
+                      content:
+                        type: string
+                commands:
+                  type: array
+                  items:
+                    type: string
+                constraints:
+                  type: array
+                  items:
+                    type: string
+                acceptance_criteria:
+                  type: array
+                  items:
+                    type: string
+                do_not_do:
+                  type: array
+                  items:
+                    type: string
+                final_report_format:
+                  type: string
+                agent_prompt:
+                  type: string
+      responses:
+        "200":
+          description: Handoff saved successfully.
+  /github-issue:
+    post:
+      operationId: createGithubIssueDraft
+      summary: Save or create a GitHub Issue draft.
+      description: Saves a GitHub Issue body for development, automation, research, or task execution.
+      x-openai-isConsequential: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body, priority, area]
+              properties:
+                repo:
+                  type: string
+                title:
+                  type: string
+                body:
+                  type: string
+                labels:
+                  type: array
+                  items:
+                    type: string
+                priority:
+                  type: string
+                  enum: [A, B, C]
+                area:
+                  type: string
+                  enum: [real_estate, finance, ai_automation, github_dev, business, personal, investment, sales, research]
+                create_issue:
+                  type: boolean
+                  default: false
+      responses:
+        "200":
+          description: GitHub Issue draft saved or issue created.
+components:
+  schemas: {}
